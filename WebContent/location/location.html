@@ -1,0 +1,14 @@
+<section class="container-fluid">
+    <div class="row">
+        <div  ng-controller="LocationCtrl as location">
+            <div ui-grid="gridOptions"
+                 class="grid" ui-grid-resize-columns ui-grid-move-columns
+                 ui-grid-exporter ui-grid-selection ui-grid-edit>
+
+            </div>
+            <br>
+            <strong>Total Records:</strong> {{ gridOptions.data.length | number }}
+        </div>
+    </div>
+</section>
+

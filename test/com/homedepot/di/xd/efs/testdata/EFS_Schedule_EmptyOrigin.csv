@@ -1,0 +1,2 @@
+Location Number,Destination,Schedule Type Code,Schedule Group Code,Schedule Name,Order Day,VTT (days),Ship Day,Arrive Day,Vendor Ready Time,Expected Carrier Depart Time,Transit Time (in hours),DC Appointment Time,DC Start Work Day,DC End Work Day,Start Shift Sequence Number,End Shift Sequence Number,Number of Shifts Worked,Order Week Number,Tender Week Number,Ship Week Number,Arrive Week Number,DC Start Work Week Number,DC End Work Week Number,Effective Begin Date,Effective End Date
+,5520,1,1,3M HOUSTON CORE,4,2,5,6,12:00,14:00,16,6:00,6,6,1,1,1,0,0,0,0,0,0,1/1/1999,3/4/2015

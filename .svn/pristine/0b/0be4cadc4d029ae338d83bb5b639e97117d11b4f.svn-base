@@ -1,0 +1,128 @@
+body {
+    background:#fff;
+    color:black;
+    font-family: "Helvetica Neue", Helvetica, "Arial Light", Arial, sans-serif;
+}
+
+.navbar-default {
+    background:#282828;
+    border: none;
+    border-radius: 0;
+}
+
+.navbar-default .navbar-nav > .active > a {
+    background: black;
+    color: white;
+}
+
+.navbar-brand.hd-brand {
+    line-height: 50px;
+    padding: 15px;
+    color:#fff;
+    font-weight: bold;
+}
+
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+    color: #f96302;
+}
+
+.navbar-default .navbar-text {
+    color:#fff;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #fff;
+}
+
+.hd-brand img {
+    float: left;
+    margin-right: 3px;
+}
+
+.search-space {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.nav-tabs > li.active > a > span {
+    color: #fff;
+    background-color: #F96305;
+}
+.navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+    background-color: black;
+    color: #f96302;
+}
+
+.btn-green {
+    color: #fff;
+    background: #5cb85c;
+}
+
+.btn-white {
+    color: #fff;
+    background: #000;
+}
+
+.btn-gray {
+    color: #fff;
+    background: #969696;
+}
+
+.btn {
+    margin: 3px;
+}
+
+.btn:hover, .btn:focus, .btn.focus {
+     color:  #000;
+     text-decoration: none;
+ }
+
+.flow-message {
+    min-height: 100px;
+}
+
+.col-main {
+    padding-right:0;
+}
+
+.container-main{
+    padding-left:0;
+}
+
+/* Dark Form styles*/
+
+.form-dark {
+    margin-top:10px;
+}
+
+.form-dark .form-group{
+    margin-bottom:26px;
+}
+
+.form-dark .form-subheader {
+    color:white;
+    font-weight: bold;
+}
+
+.form-dark label{
+    color:#ccc;
+    font-weight:bold;
+}
+
+/* color keys */
+.rdc-indicator {
+    background:#f96302;
+    border:none;
+}
+
+.origin-indicator {
+    background:#00ae40;
+    border:none;
+}
+
+
+
+
+
+
+

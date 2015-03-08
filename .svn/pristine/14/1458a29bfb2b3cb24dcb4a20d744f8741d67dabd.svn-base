@@ -1,0 +1,481 @@
+package com.homedepot.di.xd.efs.businesshelper;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
+
+import com.homedepot.di.xd.efs.constants.EFSConstants;
+import com.homedepot.di.xd.efs.constants.UploadConstants;
+import com.homedepot.di.xd.efs.dao.ScheduleUploadDAO;
+import com.homedepot.di.xd.efs.exception.EFSException;
+import com.homedepot.di.xd.efs.to.InputFileTO;
+import com.homedepot.di.xd.efs.to.ResponseTO;
+import com.homedepot.di.xd.efs.to.ScheduleOrderDayTO;
+import com.homedepot.di.xd.efs.to.ScheduleTO;
+import com.homedepot.di.xd.efs.util.EFSUtil;
+import com.homedepot.di.xd.efs.util.UploadValidationUtil;
+
+public class ScheduleUploadProcessor implements IUploadProcessor {
+
+
+	private static final Logger LOGGER = Logger
+			.getLogger(ScheduleUploadProcessor.class);
+
+	@Override
+	public void processFile(InputFileTO fileObj, ResponseTO responseTO)
+			throws IOException, EFSException {
+		processValidHeaderDataForSchedule(fileObj, responseTO);
+	}
+
+	/**
+	 * This method is to validate the uploaded file headers
+	 */
+	public int validateHeader(String[] uploadedHeader) {
+
+		if(LOGGER.isDebugEnabled()){
+			LOGGER.debug( UploadConstants.ENTERING_METHOD + "validateHeader");
+		}
+
+		int hdrValidationCode = UploadValidationUtil.validateHeaderFields(uploadedHeader,
+				UploadConstants.getScheduleHeader());
+
+		if(LOGGER.isDebugEnabled()){
+			LOGGER.debug("Schedule Upload header validation return code is "+hdrValidationCode);
+			LOGGER.debug( UploadConstants.EXIT_METHOD + "validateHeader");
+		}
+		return hdrValidationCode;
+	}
+
+
+	/**
+	 * Process the Schedule Data
+	 *  
+	 * @param fileObj
+	 * @param responseTO
+	 * @throws EFSException
+	 */
+	public static void processValidHeaderDataForSchedule(InputFileTO fileObj,
+			ResponseTO responseTO) throws EFSException{
+
+		if(LOGGER.isDebugEnabled()){
+			LOGGER.debug( UploadConstants.ENTERING_METHOD + "processValidHeaderDataForSchedule");
+		}
+
+		Map<String, List<ScheduleTO>> validMap = new HashMap<>();
+		List<ScheduleTO> scheduleTOList = new ArrayList<>();
+
+		//		Map<String, ScheduleTO> validTOMap = new HashMap<>();
+		List<ScheduleTO> inValidList = new ArrayList<>();
+		Map<Integer, Object[]> fileContents = null;
+
+		try{
+
+			StringBuilder errString = null;
+
+			//Read the file content
+			fileContents = fileObj.getFileContents();
+
+			// Read each record in the file and validate
+			for (Map.Entry<Integer, Object[]> entry : fileContents.entrySet()){
+
+				if(entry.getKey() == 0){
+					continue;
+				}
+
+				Object[] row = entry.getValue();
+				errString = new StringBuilder();
+
+				ScheduleTO scheduleTo = null; // = new ScheduleTO();
+				String origin = null; 
+				String destination = null;
+				String scheduleType =null;
+				String effBeginDt=null;
+				String effEndDt = null;
+				short scheduleGroup = 0;
+
+				//If Origin ID is invalid add it to error string
+				if (!UploadValidationUtil.isOriginValid(row[UploadConstants.FIRST].toString())) {
+					errString.append(UploadConstants.INVALID_ORIGIN);
+				}else{
+					origin = row[UploadConstants.FIRST].toString();
+				}
+
+				// If Destination ID is invalid add it to error string
+				if (!UploadValidationUtil.isDestinationValid(row[UploadConstants.SECOND].toString())) {
+					errString.append(UploadConstants.INVALID_DESTINATION);
+				}else{
+					destination = row[UploadConstants.SECOND].toString();
+				}
+
+				// If Schedule Type Code is invalid add it to error string
+				if (!UploadValidationUtil.isNumeric(row[UploadConstants.THREE].toString())) {
+					errString.append(UploadConstants.INVALID_SCHEDULE_TYP_CD);
+				}else{
+					scheduleType = row[UploadConstants.THREE].toString();
+				}
+
+				// If Schedule Group Code is invalid add it to error string
+				if(row[UploadConstants.FOURTH] !=null){
+					scheduleGroup = (short)row[UploadConstants.FOURTH];
+				}else{
+					scheduleGroup = (short) UploadConstants.ONE;
+				}
+
+
+				// Check if  Effective begin date exist
+				// if exist then convert that into Util.Date format
+				if(row[UploadConstants.TWENTYFIVE] == null){
+					errString.append(UploadConstants.INVALID_EFF_BGN_DT);
+				}else{
+					effBeginDt = row[UploadConstants.TWENTYFIVE].toString();
+				}
+
+				// Check if  Effective begin date exist
+				// if exist then convert that into Util.Date format
+				if(row[UploadConstants.TWENTYSIX] == null){
+					errString.append(UploadConstants.INVALID_EFF_END_DT);
+				}else{
+					effEndDt = row[UploadConstants.TWENTYSIX].toString();
+				}
+
+
+				/**
+				 * Check in ValidToMap for existence of a record in below combination
+				 * if (Location + Destination + Schedule Type CD + Schedule Group CD ) exist.
+				 * 		Check for Order Day existence in scheduleOrderDayTO List
+				 * 
+				 *  Valid OrderDay is from 1 to 7 
+				 */
+				String key = origin+"_"+destination+"_"+scheduleType+"_"+scheduleGroup; //+"_"+effBeginDt+"_"+effEndDt;
+
+				// This is to handle multiple rows in excel
+				if(validMap.get(key) != null){
+
+					//List<ScheduleTO> tempList = validMap.get(key);
+					java.sql.Date effBeginDate = UploadValidationUtil.convertSUtilDateToSqlDate(row[UploadConstants.TWENTYFIVE]);
+					java.sql.Date effEndDate = UploadValidationUtil.convertSUtilDateToSqlDate(row[UploadConstants.TWENTYSIX]);
+
+					for(ScheduleTO to: validMap.get(key)){
+
+						/*
+						 * Check if Effective dates are getting overlaps if yes then check the Order Day
+						 */
+						if(!UploadValidationUtil.isDateRangeOverlapping(to.getEffectiveBeginDate(), to.getEffectiveEndDate(), 
+								effBeginDate, effEndDate)){
+
+							// Need to create a new ScheduleTO to keep different effective Dates 
+							scheduleTo = new ScheduleTO();
+							scheduleTo.setOriginNumber(origin);
+							scheduleTo.setScheduleGroupCode(scheduleGroup);
+							populateScheduleTO(scheduleTo, row, errString,fileObj);
+
+							//finally add the scheduleTO to Map 
+							if(errString.length() > 0){
+								scheduleTo.setErrorString(errString.toString());
+								inValidList.add(scheduleTo);
+							}else{
+
+								scheduleTOList.add(scheduleTo);
+								validMap.put(key, scheduleTOList);
+								//validTOMap.put(key, scheduleTo);
+							}
+						}else{
+
+							// Check to ensure Order day is also not overlapping
+							/**
+							 * Compare the EFF_DTs from tempTO and compare with the incoming row 
+							 * variables eff_dts to find if there is any Overlapping exists
+							 */
+							Map<Short, ScheduleOrderDayTO> orderDayToMap = to.getScheduleOrderDayTO();
+
+							if(orderDayToMap!=null){
+								ScheduleOrderDayTO orderDayTo = null;
+								Short orderDay = null;
+								if(row[UploadConstants.SIX]!=null){
+									orderDay = (Short) row[UploadConstants.SIX];
+
+									/**
+									 * Check to see there is any Order Day object exists 
+									 * if Not create a new ScheduleOrderDayTO and add in Map
+									 * if exist throw error for duplicate order day record
+									 */ 
+									if(orderDayToMap.get(orderDay) == null){
+										orderDayTo = new ScheduleOrderDayTO();
+										populateScheduleOrderDayTO(orderDayTo,row,orderDay, errString,fileObj);
+										orderDayToMap.put(orderDay, orderDayTo);
+									}else{
+										errString.append(UploadConstants.INVALID_ORDER_DAY_RECORD + orderDay);
+									}
+								}else{
+									errString.append(UploadConstants.INVALID_ORDER_DAY + orderDay);
+									//continue;
+								}
+							}
+
+							if(errString.length() > 0){
+								to.setErrorString(errString.toString());
+								inValidList.add(scheduleTo);
+							}
+
+						}
+
+
+
+					}
+
+				}else{
+
+					// First time adding the ScheduleTO to validMap
+					scheduleTo = new ScheduleTO();
+					scheduleTo.setOriginNumber(origin);
+					scheduleTo.setScheduleGroupCode(scheduleGroup);
+					populateScheduleTO(scheduleTo, row, errString,fileObj);
+
+					//finally add the scheduleTO to Map 
+					if(errString.length() > 0){
+						scheduleTo.setErrorString(errString.toString());
+						inValidList.add(scheduleTo);
+					}else{
+
+						scheduleTOList.add(scheduleTo);
+						validMap.put(key, scheduleTOList);
+						//validTOMap.put(key, scheduleTo);
+					}
+				}
+
+			} //end of Iterating Data
+			LOGGER.debug("Valid TO List size :"+validMap.size());
+			LOGGER.debug("Invalid TO List size :" +inValidList.size());
+
+//
+			for (Entry<String, List<ScheduleTO>> entry : validMap.entrySet())
+			{
+
+				//Fetching the list of TOs from the corresponding map entry
+				List<ScheduleTO> schList = new ArrayList<ScheduleTO>(entry.getValue());
+
+				//find the scheduleTO that has error message set and move that to inValidList.
+				for(ScheduleTO schTO:entry.getValue())
+				{
+					if (!schTO.getErrorString().isEmpty())
+					{
+						schList.remove(schTO);
+						inValidList.add(schTO);
+					}
+
+				}
+				validMap.put(entry.getKey(), schList);
+
+			}
+
+
+			
+			//List of TO  to Populate data in Database.
+
+			@SuppressWarnings("unchecked")
+			List<ScheduleTO> schToList = (List<ScheduleTO>) new ArrayList(validMap.values());
+			
+			
+			ScheduleUploadDAO.insertRecords(schToList, inValidList);
+
+			//TODO Need to Populate data in Database
+
+
+		}catch(Exception e){
+			throw new EFSException(
+					EFSConstants.EXCEPTION_OCCURED, e);
+		}
+		if(LOGGER.isDebugEnabled()){
+			LOGGER.debug( UploadConstants.EXIT_METHOD + "processValidHeaderDataForLane");
+		}
+	}
+
+	public static void populateScheduleTO(ScheduleTO scheduleTo,  Object[] row, StringBuilder errString, InputFileTO fileObj){
+
+		scheduleTo.setDestinationNumber((int)row[UploadConstants.SECOND]);
+		scheduleTo.setScheduleTypeCode((short)row[UploadConstants.THREE]);
+		scheduleTo.setEffectiveBeginDate(UploadValidationUtil.convertSUtilDateToSqlDate(row[UploadConstants.TWENTYFIVE]));
+		scheduleTo.setEffectiveEndDate(UploadValidationUtil.convertSUtilDateToSqlDate(row[UploadConstants.TWENTYSIX]));
+		scheduleTo.setCreatedUserId(fileObj.getUserId());
+		scheduleTo.setLastUptdUserId(fileObj.getUserId());
+		// Check for Schedule Name exist or not
+		scheduleTo.setScheduleName(row[UploadConstants.FIVE].toString());
+		if (!UploadValidationUtil.isValidStringLength(row[UploadConstants.FIVE].toString(), 100)) {
+			errString.append(UploadConstants.INVALID_SCHEDULE_NAME);
+		}
+
+		ScheduleOrderDayTO orderDayTo = new ScheduleOrderDayTO();
+		Short orderDay = null;
+
+		if(row[UploadConstants.SIX]!=null){
+			orderDay = (Short) row[UploadConstants.SIX];
+			// Populates Order Day To
+			populateScheduleOrderDayTO(orderDayTo,row,orderDay, errString,fileObj);
+			Map<Short, ScheduleOrderDayTO> orderDayToMap = new HashMap<>();
+			orderDayToMap.put(orderDay, orderDayTo);
+			scheduleTo.setScheduleOrderDayTO(orderDayToMap);
+		}else{
+			errString.append(UploadConstants.INVALID_ORDER_DAY + orderDay);
+			//			continue;
+		}
+
+
+	}
+
+	/**
+	 * Method populates the ScheduleOrderDayTO with the input data
+	 * 
+	 * @param orderDayTo
+	 * @param row
+	 * @param orderDay
+	 * @param errString
+	 */
+	public static void populateScheduleOrderDayTO(ScheduleOrderDayTO orderDayTo, Object[] row,Short orderDay, StringBuilder errString,InputFileTO fileObj){
+
+		//Setting Order Day
+		orderDayTo.setOrderDayOfWeekCode((short)orderDay);
+		if(!UploadValidationUtil.isValidWeekDayNumber(row[UploadConstants.SIX].toString())){
+			errString.append(UploadConstants.INVALID_ORDER_DAY);
+		}
+
+		//Check if shipDay exist
+		//Calculate VTT if ship Day exist
+		orderDayTo.setShipmentBeginDayOfWeekCode((short) row[UploadConstants.EIGHT]);  //NINE
+		orderDayTo.setShipmentEndDayOfWeekCode((short) row[UploadConstants.EIGHT] );
+		Short shipDay = null;
+		if(!UploadValidationUtil.isValidWeekDayNumber(row[UploadConstants.EIGHT].toString())){
+			errString.append(UploadConstants.INVALID_SHIP_DAY);
+		}							
+		else {
+			shipDay=(Short) row[UploadConstants.EIGHT]; 
+			orderDayTo.setVendorTransportationTimeHours(UploadValidationUtil.calculateVendorTranspTime(shipDay,orderDay));
+		}
+
+		//Check if Arrival Day exist
+		orderDayTo.setArrivalBeginDayOfWeekCode((short) row[UploadConstants.NINE]); //TEN
+		orderDayTo.setArrivalEndDayOfWeekCode((short) row[UploadConstants.NINE]);
+		if(!UploadValidationUtil.isValidWeekDayNumber(row[UploadConstants.NINE].toString())){
+			errString.append(UploadConstants.INVALID_ARRIVAL_DAY);
+		}
+
+		//Check if vendor Ready Time exist
+		orderDayTo.setOriginLocationShipmentBeginTime(EFSUtil.convertToValidTimeFormat(row[UploadConstants.TEN].toString())); //ELEVEN
+		orderDayTo.setOriginLocationShipmentEndTime(EFSUtil.convertToValidTimeFormat( row[UploadConstants.TEN].toString()));
+		if(!UploadValidationUtil.isValidTimeFormat(row[UploadConstants.TEN].toString())){
+			errString.append(UploadConstants.INVALID_VNDR_RD_TYM);
+		}
+
+		//Check if  Carrier Depart Time exist
+		orderDayTo.setExpectedCarrierDepartTime(EFSUtil.convertToValidTimeFormat(row[UploadConstants.ELEVEN].toString()));//TWELVE
+		if(!UploadValidationUtil.isValidTimeFormat(row[UploadConstants.ELEVEN].toString()))
+		{
+			errString.append(UploadConstants.INVALID_CARRIER_DEPT_TYM);
+		}
+
+		//Check if Shipment Transit Time exist
+		orderDayTo.setExpectedShipmentTransitTimeHours((short) row[UploadConstants.TWELVE]); //THIRTEEN
+		if(!UploadValidationUtil.isNumeric(row[UploadConstants.TWELVE].toString()))
+		{
+			errString.append(UploadConstants.INVALID_SHPMNT_TRANS_TIME);
+		}
+
+		//Check if DC Appointment Time exist
+		orderDayTo.setExpectedCarrierArrivalBeginTime(EFSUtil.convertToValidTimeFormat(row[UploadConstants.THIRTEEN].toString()));//FOURTEEN
+		orderDayTo.setExpectedCarrierArrivalEndTime(EFSUtil.convertToValidTimeFormat( row[UploadConstants.THIRTEEN].toString()));
+		if(!UploadValidationUtil.isValidTimeFormat(row[UploadConstants.THIRTEEN].toString()))
+		{
+			errString.append(UploadConstants.INVALID_DC_APP_TYM);
+		}
+
+		//Check if DC Start Work Day exist
+		orderDayTo.setDcBeginShipmentWorkDayOfWeekCode((short) row[UploadConstants.FOURTEEN]);//FIFTEEN
+		if(!UploadValidationUtil.isValidWeekDayNumber(row[UploadConstants.FOURTEEN].toString()))
+		{
+			errString.append(UploadConstants.INVALID_DC_START_WORK_DAY);
+
+		}
+
+		//Check if DC End Work Day exist
+		orderDayTo.setDcEndShipmentWorkDayOfWeekCode((short) row[UploadConstants.FIFTEEN]);//SIXTEEN
+		if(!UploadValidationUtil.isValidWeekDayNumber(row[UploadConstants.FIFTEEN].toString())){
+			errString.append(UploadConstants.INVALID_DC_END_WORK_DAY);
+		}
+
+		//Check if DC Start Shift Sequence Number exists
+		orderDayTo.setDcBeginWorkShiftSequenceNumber((short) row[UploadConstants.SIXTEEN]);//SEVENTEEN
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.SIXTEEN].toString()))
+		{
+			errString.append(UploadConstants.INVALID_DC_START_SHFT_SEQ_NBR);
+		}
+
+		//Check if DC End Shift Sequence Number exists
+		orderDayTo.setDcEndWorkShiftSequenceNumber((short) row[UploadConstants.SEVENTEEN]);//EIGHTEEN
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.SEVENTEEN].toString()))
+		{
+			errString.append(UploadConstants.INVALID_DC_END_SHFT_SEQ_NBR);
+		}
+
+		//Check if DC Shift Count exists
+		orderDayTo.setDcShipmentWorkShiftCount((short) row[UploadConstants.EIGHTEEN]);//NINETEEN
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.EIGHTEEN].toString()))
+		{
+			errString.append(UploadConstants.INVALID_DC_SHIFT_CNT);
+		}
+
+		//TODO NEED TO MAKE DB CALL AND GET THIS TIME FOR THE RESPECTVIE DC - SXV8609
+		orderDayTo.setDcShipmentWorkHours((short) (orderDayTo.getDcShipmentWorkShiftCount()*12.5));
+
+		//Check if OrderWeek Number exists if not populate as ZERO
+		orderDayTo.setOrderDayOfWeekCode((short) row[UploadConstants.NINETEEN]);//TWENTY
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.NINETEEN].toString())){
+			orderDayTo.setOrderDayOfWeekCode((short) UploadConstants.ZERO);
+		}
+
+		//Check if  Tender Relative Week Number exists
+		orderDayTo.setTenderRelativeWeekNumber((short) row[UploadConstants.TWENTY]);//TWENTYONE
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.TWENTY].toString()))
+		{
+			errString.append(UploadConstants.INVALID_TNDR_RTV_WK_NBR);
+		}
+
+		//Check if Ship Week Number exists
+		orderDayTo.setShipmentBeginRelativeWeekNumber((short) row[UploadConstants.TWENTYONE]);//TWENTYTWO
+		orderDayTo.setShipmentEndRelativeWeekNumber((short) row[UploadConstants.TWENTYONE]);
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.TWENTYONE].toString()))
+		{
+			errString.append(UploadConstants.INVALID_SHP_WK_NBR);
+		}
+
+		//Check if Arrive Week Number exists
+		orderDayTo.setArrivalBeginRelativeWeekNumber((short) row[UploadConstants.TWENTYTWO]);//TWENTYTHREE
+		orderDayTo.setArrivalEndRelativeWeekNumber((short) row[UploadConstants.TWENTYTWO]);
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.TWENTYTWO].toString()))
+		{
+			errString.append(UploadConstants.INVALID_ARRIVE_WK_NBR);
+		}
+
+		//Check if DC Start Work Week Number exists
+		orderDayTo.setDcBeginShipmentWorkRelativeWeekNumber((short) row[UploadConstants.TWENTYTHREE]);//TWENTYFOUR
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.TWENTYTHREE].toString()))
+		{
+			errString.append(UploadConstants.INVALID_DC_STRT_WRK_WK_NBR);
+		}
+
+		//Check if DC End Work Week Number exists
+		orderDayTo.setDcEndShipmentWorkRelativeWeekNumber((short) row[UploadConstants.TWENTYFOUR]);//TWENTYFIVE
+		if(!UploadValidationUtil.isNumeric( row[UploadConstants.TWENTYFOUR].toString()))
+		{
+			errString.append(UploadConstants.INVALID_DC_END_WRK_WK_NBR);
+		}
+		orderDayTo.setCreatedUserId(fileObj.getUserId());
+		orderDayTo.setLastUptdUserId(fileObj.getUserId());
+		//return orderDayTo;
+	}
+
+}

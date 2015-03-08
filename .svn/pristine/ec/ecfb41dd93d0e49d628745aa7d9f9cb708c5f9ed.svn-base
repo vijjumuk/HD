@@ -1,0 +1,8 @@
+<div class="search-container">
+	<form name="frmSearch">
+		<div class="input-group">
+			<input class="form-control" type="text" placeholder="Search" />
+			<div class="input-group-addon"><i class="fa fa-search"></i></div>
+		</div>
+	</form>
+</div>

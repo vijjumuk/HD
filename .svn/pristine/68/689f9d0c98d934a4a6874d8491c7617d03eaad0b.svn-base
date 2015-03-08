@@ -1,0 +1,27 @@
+.route-controls {
+	background: rgb(234,234,234);
+	padding:22px 14px;
+}
+
+.nav-tabs {
+	border-bottom:none;
+}
+
+.nav-tabs a{
+	color:white;
+}
+
+.nav-tabs > li > a {
+	background:white;
+	color:#f96302;
+	border-radius:0;
+	font-weight:bold;
+	padding: 12px 10px;
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+	background:#4d4d4d;
+	border:none;
+	color:white;
+	font-size:19px;
+}

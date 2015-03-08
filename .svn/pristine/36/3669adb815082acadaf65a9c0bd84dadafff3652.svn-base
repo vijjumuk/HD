@@ -1,0 +1,16 @@
+.week-container {
+	background:white;
+	color:black;
+}
+
+.week-container .week-table {
+	margin-bottom:0;
+}
+
+.week-container .week-table th{
+	text-align:center;
+}
+
+.week-container .week-table td{
+	height:100px;
+}

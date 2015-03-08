@@ -1,0 +1,22 @@
+(function() {
+    'use strict';
+
+    angular.module('efs.core', [
+        /*
+         * Angular modules
+         */
+        'ngResource',
+        'ngSanitize',
+        'ngAnimate',
+        /*
+         * 3rd Party modules
+         */
+        'ui.router',
+        'mgcrea.ngStrap',
+        'angularFileUpload'  
+        /*
+         * Our reusable cross app code modules
+         */
+         
+    ]);
+})();

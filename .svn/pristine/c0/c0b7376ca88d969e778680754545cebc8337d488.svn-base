@@ -1,0 +1,30 @@
+<div id="wrapper">
+	<!-- Main Column right -->
+	<div id="sidebar-wrapper">
+		<div ng-include="'route/create.route.html'"></div>
+	</div>
+	<div id="page-content-wrapper">
+		<section class="container-fluid container-main">
+			<div class="row">
+				<!-- Main column left -->
+				<div class="col-md-12 col-main">
+					<!-- Search -->
+					<div ng-include="'search/search.html'"></div>
+					<!-- Map -->
+					<div ng-include="'map/map.html'"></div>
+					<!-- Route Controls -->
+					<div class="route-controls">
+						<form class="form-inline" name="frmRouteControls">
+							<select class="form-control" name="legSelect">
+								<option value="1">Leg 1</option>
+							</select>
+
+						</form>
+					</div>
+					<!-- Calendar week view -->
+					<div ng-include="'calendar/week.html'"></div>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>

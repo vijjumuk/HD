@@ -1,0 +1,53 @@
+.navbar-default .navbar-nav > .active > a {
+    background-image: linear-gradient(to bottom, #EBEBEB 0px, #F3F3F3 100%);
+    background-repeat: repeat-x;
+    box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.075) inset;
+}
+
+.navbar-brand.hd-brand {
+    line-height: 50px;
+    padding: 15px;
+}
+
+.hd-brand img {
+    float: left;
+    margin-right: 3px;
+}
+
+.search-space {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.nav-tabs > li.active > a > span {
+    color: #fff;
+    background-color: #F96305;
+}
+
+.btn-green {
+    color: #fff;
+    background: #5cb85c;
+}
+
+.btn-white {
+    color: #fff;
+    background: #000;
+}
+
+.btn-gray {
+    color: #fff;
+    background: #969696;
+}
+
+.btn {
+    margin: 3px;
+}
+
+.btn:hover, .btn:focus, .btn.focus {
+     color:  #000;
+     text-decoration: none;
+ }
+
+.flow-message {
+    min-height: 100px;
+}

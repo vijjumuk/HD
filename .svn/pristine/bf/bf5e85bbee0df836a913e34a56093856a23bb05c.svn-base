@@ -1,0 +1,100 @@
+package com.homedepot.di.xd.efs.dao;
+
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.homedepot.di.xd.efs.exception.EFSException;
+import com.homedepot.di.xd.efs.to.LocationTO;
+import com.homedepot.homer.util.HomerUnitTestCase;
+import com.homedepot.ta.aa.dao.exceptions.QueryException;
+
+public class UploadDAOTest extends HomerUnitTestCase {
+
+	static int locId = 20;
+	
+	@Test
+	public void insertLocationDetailsWithNull() throws QueryException,
+			EFSException {
+		Assert.assertFalse(LocationUploadDAO.insertLocationDetails(null));
+	}
+
+	@Test
+	public void insertLocationDetailsWithEmptyList() throws QueryException,
+			EFSException {
+		List<LocationTO> locationList = new ArrayList<LocationTO>();
+		Assert.assertFalse(LocationUploadDAO
+				.insertLocationDetails(locationList));
+	}
+
+	
+	@Test
+	public void insertDetailsIntoReferenceTable1() throws QueryException {
+		List<LocationTO> locationList = new ArrayList<LocationTO>();
+		LocationTO locTO = new LocationTO();
+		locId++;
+		locTO.setLocationId(locId);
+		locTO.setCreateUserId("PXA8573");
+		locTO.setLastUpdatedUserId("PXA8573");
+		locTO.setSourceLocationNbr("5047");
+		locationList.add(locTO);
+		da.table("SCHN_EFS_LOC_XREF").where("SCHN_LOC_ID =" +locId);
+		da.assert_count(0);
+		Assert.assertTrue(LocationUploadDAO.insertLocationReferenceDetails(locationList));
+		da.table("SCHN_EFS_LOC_XREF").where("SCHN_LOC_ID = " +locId);
+		da.assert_count(1);
+	}
+	
+	
+	@Test
+	public void insertEmptyListForReferenceTable() throws QueryException {
+		List<LocationTO> locationList = new ArrayList<LocationTO>();
+		Assert.assertFalse(LocationUploadDAO
+				.insertLocationReferenceDetails(locationList));
+	}
+
+	@Test
+	public void insertDetailsIntoReferenceTableWithNull() throws QueryException {
+		Assert.assertFalse(LocationUploadDAO
+				.insertLocationReferenceDetails(null));
+	}
+
+	@Test
+	public void readLocationDetailsForUpdate() throws QueryException,
+			EFSException {
+		Map<String, Integer> locationAndXrefDetailsMap = LocationUploadDAO
+				.readLocationDetailsForUpdate();
+		assertNotNull(locationAndXrefDetailsMap);
+	}
+
+	@Test
+	public void updateLocationDetailsTest() throws QueryException, EFSException {
+		List<LocationTO> locationList = new ArrayList<LocationTO>();
+		LocationTO locTO = new LocationTO();
+		locTO.setLocationId(locId);
+		locTO.setCreateUserId("PXA8573");
+		locTO.setLastUpdatedUserId("PXA8573");
+		locTO.setAddressLine1(null);
+		locTO.setAddressLine2(null);
+		locTO.setAddressLine3(null);
+		locTO.setAddressLine4(null);
+		locTO.setAddressLine5(null);
+		locTO.setStateCode("OK");
+		locTO.setPostalCode("70517");
+		locTO.setCityName("FREEDOM");
+		locTO.setCountryCode("US");
+		locTO.setLatitude("15.2346");
+		locTO.setLongitude("75.1234");
+		locTO.setLocationTypeCd("2");
+		locTO.setLocationName("HOUSTON");
+		locTO.setActiveFlg("Y");
+		locationList.add(locTO);
+		Assert.assertTrue(LocationUploadDAO.updateLocationDetails(locationList));
+	}
+	
+}

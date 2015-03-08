@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.css" rel="stylesheet">
+    <link href="css/font-awesome.css" rel="stylesheet">
+    <!--Always the last file-->
+    <link href="css/custom.css" rel="stylesheet">
+    <title>EFS</title>
+</head>
+<body>
+<header class="nav navbar navbar-default container-fluid">
+    <div class="navbar-header">
+        <div class="navbar-brand hd-brand">
+            <a href=""><img src="images/com-hd-logo.png" height="50" width="50"></a>
+            <span class="hd-brand">SCS Data Maintenance Tool</span>
+        </div>
+    </div>
+    <div>
+        <ul class="nav navbar-nav">
+            <li><a href="">Order Group</a></li>
+            <li class="active"><a href="">Load Group</a></li>
+            <li><a href="">Vendor</a></li>
+        </ul>
+    </div>
+    <div>
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <p class="navbar-text"> Signed in as Thomas</p>
+            </li>
+            <li>
+                <a class="fa fa-bars fa-lg"></a>
+            </li>
+        </ul>
+    </div>
+</header>
+<section class="container-fluid">
+    <div class="row text-center">
+        <div class="alert alert-info">Selecting <i class="fa fa-search"></i>
+            without any filters will show the first 50 records.<a href="#" class="close" data-dismiss="alert">×</a>
+        </div>
+    </div>
+</section>
+<section class="container search-space">
+    <div class="row">
+        <div class="col-md-12">
+            <form class="text-center">
+                <div class="form-group-sm form-inline">
+                    <input type="text" placeholder="Origin" class="form-control">
+                    <input type="text" placeholder="Destination" class="form-control">
+                    <button class="btn btn-sm btn-orange"><i class="fa fa-search fa-lg"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<nav>
+    <div class="container">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active"><a href="">Default <span class="badge">50</span></a></li>
+            <li><a href="">SKU <span class="badge count">0</span></a></li>
+            <li><a href="">All <span class="badge count">0</span></a></li>
+        </ul>
+    </div>
+</nav>
+<section class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-gray pull-left"><i class="fa fa-download"></i></button>
+            <button class="btn btn-sm btn-green pull-left"><i class="fa fa-upload"> Bulk</i></button>
+            <button class="btn btn-sm btn-gray pull-left"><i class="fa fa-file-o "></i> Template</button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-green pull-right"><i class="fa fa-plus"> New</i></button>
+            <button class="btn btn-sm btn-gray pull-right"><i class="fa fa-eraser"> Clear</i></button>
+        </div>
+    </div>
+</section>
+<section class="container">
+    <table class="table table-striped table-bordered table-hover table-condensed">
+        <thead>
+        <tr>
+            <th><i class="fa fa-square-o"></i></th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Carter</td>
+            <td>johncarter@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>Peter</td>
+            <td>Parker</td>
+            <td>peterparker@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Rambo</td>
+            <td>johnrambo@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Carter</td>
+            <td>johncarter@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>Peter</td>
+            <td>Parker</td>
+            <td>peterparker@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Rambo</td>
+            <td>johnrambo@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Carter</td>
+            <td>johncarter@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>Peter</td>
+            <td>Parker</td>
+            <td>peterparker@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Rambo</td>
+            <td>johnrambo@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Carter</td>
+            <td>johncarter@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>Peter</td>
+            <td>Parker</td>
+            <td>peterparker@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        <tr>
+            <td><i class="fa fa-square-o"></i></td>
+            <td>John</td>
+            <td>Rambo</td>
+            <td>johnrambo@mail.com</td>
+            <td>100 Main Street</td>
+            <td>
+                <button class="btn btn-sm btn-green"><i class="fa fa-edit"> Edit</i></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

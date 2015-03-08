@@ -1,0 +1,42 @@
+[
+  {
+    "LocationNumber": "72518IA001 ",
+    "LocationDesc": "HUXLEY ",
+    "Address": "202 CAMPUS DRIVE",
+    "City":"Atlanta",
+    "State":"GA",
+    "ZIP":"30080"
+  },
+  {
+    "LocationNumber": "62518IA001 ",
+    "LocationDesc": "LOUISIANA ",
+    "Address": "2455 PACES FERRY RD",
+    "City":"New Jersey",
+    "State":"NJ",
+    "ZIP":"40080"
+  },
+  {
+    "LocationNumber": "82518IA001 ",
+    "LocationDesc": "NEW DESC ",
+    "Address": "389 OAKDALE RD",
+    "City":"Houston",
+    "State":"TX",
+    "ZIP":"30080"
+  },
+  {
+    "LocationNumber": "92518IA001 ",
+    "LocationDesc": "WONDERFUL LOCATION",
+    "Address": "6000 ALMA RD",
+    "City":"Dallas",
+    "State":"TX",
+    "ZIP":"30080"
+  },
+  {
+    "LocationNumber": "72518IA001 ",
+    "LocationDesc": "HUXLEY ",
+    "Address": "202 CAMPUS DRIVE",
+    "City":"Smyrna",
+    "State":"GA",
+    "ZIP":"30080"
+  }
+  ]
